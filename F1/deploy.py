@@ -18,6 +18,7 @@ from prefect_github import GitHubCredentials
 load_dotenv()
 
 GITHUB_BLOCK_NAME: str = "github-credentials"
+os.environ["PREFECT_API_URL"] = "https://api.prefect.cloud"
 
 
 def _validate_github_token(token: str) -> bool:
@@ -54,7 +55,6 @@ def log_into_prefect_cloud():
         subprocess.run(
             ["poetry", "run", "prefect", "cloud", "logout"],
             check=True,
-            env={**os.environ},
         )
     except subprocess.CalledProcessError:
         pass  # Ignore if not logged in
@@ -73,7 +73,6 @@ def log_into_prefect_cloud():
             prefect_cloud_workspace,
         ],
         check=True,
-        env={**os.environ},
     )
 
 
@@ -129,7 +128,6 @@ def create_work_pools():
             "--set-as-default",
         ],
         check=True,
-        env={**os.environ},
     )
     subprocess.run(
         [
@@ -145,7 +143,6 @@ def create_work_pools():
             "default-work-pool",
         ],
         check=True,
-        env={**os.environ},
     )
 
 
