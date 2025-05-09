@@ -1,2 +1,2 @@
 - name: deployment-test
-  entrypoint: tests/deployment_test:main
+  entrypoint: F1/tests/deployment_test.py:main

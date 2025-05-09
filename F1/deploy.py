@@ -94,6 +94,22 @@ def create_work_pools():
     Create work pools for the deployment.
     """
 
+    try:
+        with subprocess.Popen(
+            [
+                "poetry",
+                "run",
+                "prefect",
+                "work-pool",
+                "delete",
+                "default-work-pool",
+            ],
+            stdin=subprocess.PIPE,
+        ) as process:
+            process.communicate(input=b"y\n")
+    except subprocess.CalledProcessError:
+        pass
+
     subprocess.run(
         [
             "poetry",
@@ -101,10 +117,10 @@ def create_work_pools():
             "prefect",
             "work-pool",
             "create",
+            "--overwrite",
             "default-work-pool",
             "--type",
             "prefect:managed",
-            "--overwrite",
             "--set-as-default",
         ],
         check=True,
@@ -159,8 +175,10 @@ def deploy_flows(config_path: str):
             raise ValueError("Each flow must have a 'entrypoint' key.")
 
         # Deploy the flow
+        cron = flow_config.get("cron")
         flow.from_source(source=source, entrypoint=flow_entrypoint).deploy(
-            name=flow_name
+            name=flow_name,
+            cron=cron,
         )
 
 
