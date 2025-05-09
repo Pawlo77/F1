@@ -179,6 +179,7 @@ def deploy_flows(config_path: str):
         flow.from_source(source=source, entrypoint=flow_entrypoint).deploy(
             name=flow_name,
             cron=cron,
+            work_pool_name="default-work-pool",
         )
 
 
