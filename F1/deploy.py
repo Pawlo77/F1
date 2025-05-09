@@ -8,6 +8,7 @@ on the provided configuration.
 import os
 import subprocess
 
+import prefect.settings
 import requests
 import yaml
 from dotenv import load_dotenv
@@ -70,6 +71,7 @@ def log_into_prefect_cloud():
         ],
         check=True,
     )
+    prefect.settings.PREFECT_API_URL.value = prefect_cloud_api_key
 
 
 def create_github_block():
