@@ -1,2 +1,0 @@
-- name: deployment-test
-  entrypoint: F1/tests/deployment_test.py:main

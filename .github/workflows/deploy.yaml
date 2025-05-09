@@ -23,6 +23,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12.9'
+          cache: 'pip'
 
       - name: Install Poetry
         uses: abatilo/actions-poetry@v3
@@ -49,4 +50,6 @@ jobs:
 
       - name: Deploy using Poetry
         working-directory: F1
-        run: poetry run deploy
+        run: |
+          poetry run deploy
+          poetry run prefect deploy --all
