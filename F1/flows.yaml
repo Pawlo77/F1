@@ -1,0 +1,2 @@
+- name: deployment-test
+  entrypoint: tests/deployment_test:main

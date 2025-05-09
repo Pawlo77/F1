@@ -62,7 +62,10 @@ repos:
         args:
           - --load-plugins=pylint.extensions.check_elif,pylint.extensions.docparams,pylint.extensions.magic_value
           - --max-line-length=100
-        # additional_dependencies:
+        additional_dependencies:
+          - prefect
+          - python-dotenv
+          - prefect-github
 
   # python code security checks
   - repo: https://github.com/PyCQA/bandit
@@ -87,7 +90,7 @@ repos:
     hooks:
       - id: mypy
         name: mypy
-        entry: mypy --strict ./db/dwh/airflow/
+        entry: mypy --strict ./F1/src/
         language: python
         language_version: python3.12.9
         additional_dependencies: ["mypy"]
