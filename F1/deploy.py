@@ -51,7 +51,11 @@ def log_into_prefect_cloud():
 
     # Log out of Prefect Cloud if already logged in
     try:
-        subprocess.run(["poetry", "run", "prefect", "cloud", "logout"], check=True)
+        subprocess.run(
+            ["poetry", "run", "prefect", "cloud", "logout"],
+            check=True,
+            env={**os.environ},
+        )
     except subprocess.CalledProcessError:
         pass  # Ignore if not logged in
 
@@ -69,17 +73,7 @@ def log_into_prefect_cloud():
             prefect_cloud_workspace,
         ],
         check=True,
-    )
-    subprocess.run(
-        [
-            "poetry",
-            "run",
-            "prefect",
-            "config",
-            "set",
-            f"PREFECT_API_KEY={prefect_cloud_api_key}",
-        ],
-        check=True,
+        env={**os.environ},
     )
 
 
@@ -135,6 +129,7 @@ def create_work_pools():
             "--set-as-default",
         ],
         check=True,
+        env={**os.environ},
     )
     subprocess.run(
         [
@@ -150,6 +145,7 @@ def create_work_pools():
             "default-work-pool",
         ],
         check=True,
+        env={**os.environ},
     )
 
 
