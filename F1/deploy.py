@@ -169,9 +169,16 @@ def main():
     Main function to execute the deployment process.
     """
     log_into_prefect_cloud()
+    print("Logged into Prefect Cloud successfully.")
+
     create_github_block()
+    print("GitHub block created successfully.")
+
     create_work_pools()
+    print("Work pools created successfully.")
+
     deploy_flows(config_path="flows.yaml")
+    print("Flows deployed successfully.")
 
 
 if __name__ == "__main__":

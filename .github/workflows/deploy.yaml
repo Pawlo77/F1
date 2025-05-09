@@ -45,7 +45,7 @@ jobs:
         working-directory: F1
         run: |
           poetry config virtualenvs.in-project true
-          poetry install --no-interaction --no-root
+          poetry install --no-interaction
 
       - name: Deploy using Poetry
         working-directory: F1
