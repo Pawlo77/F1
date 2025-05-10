@@ -16,8 +16,7 @@ from sqlalchemy import JSON, Column, DateTime, Float, Index, Integer, String, Te
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session, sessionmaker
 
-from f1.utils import Base, UploadError, load_default_sqlalchemy_connection
-
+from ..utils import Base, UploadError, load_default_sqlalchemy_connection
 from .utils import get_output_dir
 
 
