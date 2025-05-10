@@ -56,5 +56,4 @@ jobs:
       - name: Deploy using Poetry
         working-directory: F1
         run: |
-          poetry run deploy
           poetry run prefect deploy --all

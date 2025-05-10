@@ -3,19 +3,28 @@ prefect-version: ">=3.4.1,<4.0.0"
 
 pull:
   - prefect.deployments.steps.git_clone:
-      repository: "{{ env.REPO_URL }}"
+      id: clone-step
+      repository: https://github.com/Pawlo77/F1.git
+      branch: main
       credentials: "{{ prefect.blocks.github-credentials.f1-github-credentials }}"
+  - prefect.deployments.steps.pip_install_requirements:
+      directory: "{{ clone-step.directory }}"
+      requirements_file: requirements.txt
+      stream_output: false
 
 deployments:
   - name: test-flow
     entrypoint: tests/deployment_test.py:main
     work_pool:
       name: default-work-pool
+    schedule:
+      cron: "0 0 1 1 *"
     tags: ["test"]
     version: "1.0"
     parameters: {}
+
   - name: racing-circuits
-    entrypoint: f1/flows/racing_circuits/elt:elt
+    entrypoint: src/f1/flows/racing_circuits/elt.py:elt
     work_pool:
       name: default-work-pool
     schedule:
