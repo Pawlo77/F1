@@ -9,7 +9,7 @@ pull:
       credentials: "{{ prefect.blocks.github-credentials.f1-github-credentials }}"
   - prefect.deployments.steps.pip_install_requirements:
       directory: "{{ clone-step.directory }}"
-      requirements_file: F1/requirements.txt
+      requirements_file: requirements.txt
       stream_output: false
 
 deployments:

@@ -93,7 +93,7 @@ repos:
     hooks:
       - id: mypy
         name: mypy
-        entry: mypy --strict ./F1/src/
+        entry: mypy --strict src/
         language: python
         language_version: python3.12.9
         types: [python]
