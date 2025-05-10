@@ -58,11 +58,10 @@ def create_work_pools():
     """
 
     if (
-        subprocess.run(
+        subprocess.run(  # pylint: disable=subprocess-run-check
             ["poetry", "run", "prefect", "work-pool", "inspect", "default-work-pool"],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
-            check=True,
         ).returncode
         != 0
     ):
