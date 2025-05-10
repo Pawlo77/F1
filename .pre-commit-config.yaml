@@ -63,9 +63,12 @@ repos:
           - --load-plugins=pylint.extensions.check_elif,pylint.extensions.docparams,pylint.extensions.magic_value
           - --max-line-length=100
         additional_dependencies:
-          - prefect
+          - prefect[git,sqlalchemy]
           - python-dotenv
           - prefect-github
+          - beautifulsoup4
+          - pandas
+          - pyodbc
 
   # python code security checks
   - repo: https://github.com/PyCQA/bandit
@@ -93,7 +96,6 @@ repos:
         entry: mypy --strict ./F1/src/
         language: python
         language_version: python3.12.9
-        additional_dependencies: ["mypy"]
         types: [python]
         # use require_serial so that script
         # is only called once per commit
@@ -101,6 +103,16 @@ repos:
         # Print the number of files as a sanity-check
         verbose: true
         pass_filenames: false
+        additional_dependencies:
+          - mypy
+          - types-requests
+          - pandas-stubs
+          - prefect[git,sqlalchemy]
+          - python-dotenv
+          - prefect-github
+          - beautifulsoup4
+          - pandas
+          - pyodbc
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0

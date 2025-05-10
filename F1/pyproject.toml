@@ -8,9 +8,12 @@ authors = [
 readme = "README.md"
 requires-python = ">=3.12,<3.14"
 dependencies = [
-    "prefect[git] (>=3.4.1,<4.0.0)",
+    "prefect[git,sqlalchemy] (>=3.4.1,<4.0.0)",
     "python-dotenv (>=1.1.0,<2.0.0)",
-    "prefect-github (>=0.3.1,<0.4.0)"
+    "prefect-github (>=0.3.1,<0.4.0)",
+    "beautifulsoup4 (>=4.13.4,<5.0.0)",
+    "pandas (>=2.2.3,<3.0.0)",
+    "pyodbc (>=5.2.0,<6.0.0)",
 ]
 
 [tool.poetry]

@@ -7,6 +7,8 @@ import os
 import subprocess
 
 from dotenv import load_dotenv
+from prefect_github import GitHubCredentials
+from prefect_sqlalchemy import ConnectionComponents, SqlAlchemyConnector, SyncDriver
 
 load_dotenv()
 
@@ -96,6 +98,49 @@ def create_work_pools():
         )
 
 
+def create_blocks():
+    """
+    Create blocks for the deployment.
+    """
+    token = os.getenv("REPO_TOKEN")
+    if not token:
+        raise ValueError("Missing REPO_TOKEN in environment variables")
+
+    # Create GitHub credentials block
+    github_block = GitHubCredentials(token=token)
+    github_block.save("f1-github-credentials", overwrite=True)
+
+    username = os.getenv("DB_USERNAME")
+    password = os.getenv("DB_PASSWORD")
+    host = os.getenv("DB_HOST")
+    port = os.getenv("DB_PORT")
+    database = os.getenv("DB_DATABASE")
+    if not all([username, password, host, port, database]):
+        raise ValueError(
+            "Missing one or more required environment variables: "
+            "DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT, DB_DATABASE"
+        )
+
+    # Create SQLAlchemy connector block
+    sqlalchemy_block = SqlAlchemyConnector(
+        connection_info=ConnectionComponents(
+            driver=SyncDriver.MSSQL_PYODBC,
+            username=username,
+            password=password,
+            host=host,
+            port=port,
+            database=database,
+            query={
+                "driver": "ODBC Driver 18 for SQL Server",
+                "encrypt": "yes",
+                "trustServerCertificate": "no",
+                "connectionTimeout": "15",
+            },
+        )
+    )
+    sqlalchemy_block.save("f1-mssql-azure", overwrite=True)
+
+
 def main():
     """
     Main function to execute the deployment process.
@@ -105,6 +150,9 @@ def main():
 
     create_work_pools()
     print("Work pools created successfully.")
+
+    create_blocks()
+    print("Blocks created successfully.")
 
 
 if __name__ == "__main__":

@@ -1,6 +1,9 @@
 # Deployment files
 depolyments/
 
+# Output files
+output/
+
 # Macos
 .DS_Store
 

@@ -11,3 +11,7 @@ def main():
     Simple test to check if the deployment is working.
     """
     print("Prefect is working!")
+
+
+if __name__ == "__main__":
+    main()
