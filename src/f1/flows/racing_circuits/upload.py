@@ -6,8 +6,9 @@ from __future__ import annotations
 
 import hashlib
 import os
+import sys
 from logging import Logger
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import pandas as pd
 from prefect import task
@@ -16,8 +17,21 @@ from sqlalchemy import JSON, Column, DateTime, Float, Index, Integer, String, Te
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session, sessionmaker
 
-from ..utils import Base, UploadError, load_default_sqlalchemy_connection
 from .utils import get_output_dir
+
+if TYPE_CHECKING:
+    from ..flows_utils import (
+        Base,
+        UploadError,
+        load_default_sqlalchemy_connection,
+    )
+else:
+    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+    from flows_utils import (
+        Base,
+        UploadError,
+        load_default_sqlalchemy_connection,
+    )
 
 
 class Circuit(Base):
