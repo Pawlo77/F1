@@ -16,4 +16,4 @@ DB_USERNAME=
 DB_PASSWORD=
 ```
 
-In poetry home run `poetry run deploy`.
+In poetry home run `poetry run deploy && poetry run prefect deploy --all`.
