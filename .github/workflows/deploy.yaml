@@ -11,9 +11,14 @@ jobs:
     environment: prod
     env:
       PREFECT_CLOUD_API_KEY: ${{ secrets.PREFECT_CLOUD_API_KEY }}
-      PREFECT_CLOUD_WORKSPACE: hurtownie-f1db/default
-      REPO_URL: https://github.com/Pawlo77/F1.git
+      PREFECT_CLOUD_WORKSPACE: ${{ secrets.PREFECT_CLOUD_WORKSPACE }}
+      REPO_URL: ${{ secrets.REPO_URL }}
       REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
+      DB_HOST: ${{ secrets.DB_HOST }}
+      DB_PORT: ${{ secrets.DB_PORT }}
+      DB_DATABASE: ${{ secrets.DB_DATABASE }}
+      DB_USERNAME: ${{ secrets.DB_USERNAME }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
 
     steps:
       - name: Checkout code
