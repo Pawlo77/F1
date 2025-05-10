@@ -6,10 +6,11 @@ from __future__ import annotations
 
 import os
 import re
+import sys
 from concurrent.futures import ThreadPoolExecutor
 from copy import deepcopy
 from logging import Logger
-from typing import Any, Dict, List, Tuple, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Tuple, cast
 from urllib.parse import urljoin
 
 import pandas as pd
@@ -20,11 +21,12 @@ from prefect.logging import get_run_logger
 
 from .utils import get_base_url, get_output_dir
 
-
-class ScrapeError(Exception):
-    """
-    Custom exception for scraping errors.
-    """
+# workaround for import issue in prefect
+if TYPE_CHECKING:
+    from ..flows_utils import ScrapeError
+else:
+    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+    from flows_utils import ScrapeError
 
 
 def _extract_lat_long(map_src: str) -> Tuple[float, float]:

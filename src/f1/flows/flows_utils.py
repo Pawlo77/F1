@@ -24,6 +24,12 @@ class Base(DeclarativeBase):
     """
 
 
+class ScrapeError(Exception):
+    """
+    Custom exception for scraping errors.
+    """
+
+
 class UploadError(Exception):
     """Custom exception for upload errors."""
 

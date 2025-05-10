@@ -8,6 +8,7 @@ pull:
       branch: main
       credentials: "{{ prefect.blocks.github-credentials.f1-github-credentials }}"
   - prefect.deployments.steps.pip_install_requirements:
+      id: install-requirements
       directory: "{{ clone-step.directory }}"
       requirements_file: requirements.txt
       stream_output: false

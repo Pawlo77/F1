@@ -75,7 +75,8 @@ def create_work_pools():
                 "--overwrite",
                 "default-work-pool",
                 "--type",
-                "prefect:managed",
+                # "prefect:managed",
+                "process",
                 "--set-as-default",
             ],
             check=True,
@@ -144,8 +145,8 @@ def main():
     """
     Main function to execute the deployment process.
     """
-    log_into_prefect_cloud()
-    print("Logged into Prefect Cloud successfully.")
+    # log_into_prefect_cloud()
+    # print("Logged into Prefect Cloud successfully.")
 
     create_work_pools()
     print("Work pools created successfully.")
