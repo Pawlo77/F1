@@ -24,6 +24,10 @@ class Base(DeclarativeBase):
     """
 
 
+class UploadError(Exception):
+    """Custom exception for upload errors."""
+
+
 def load_default_connector() -> SqlAlchemyConnector:
     """
     Load the default SQLAlchemy connector for the F1 project.

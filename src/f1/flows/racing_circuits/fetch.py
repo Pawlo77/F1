@@ -19,7 +19,7 @@ from bs4.element import Tag
 from prefect import task
 from prefect.logging import get_run_logger
 
-from . import get_base_url, get_circuit_dir, get_output_dir
+from .utils import get_base_url, get_circuit_dir, get_output_dir
 
 
 def _sanitize_filename(name: str) -> str:
@@ -49,11 +49,14 @@ def _get_circuit_file_path(name: str) -> str:
     return os.path.join(get_circuit_dir(), f"{filename}.html")
 
 
-def _fetch_circuit_links(a_to_z_url: str, logger: Logger | None = None) -> pd.DataFrame:
+def _fetch_circuit_links(
+    base_url: str, a_to_z_url: str, logger: Logger | None = None
+) -> pd.DataFrame:
     """
     Fetch circuit links from the A-to-Z circuits page.
 
     Args:
+        base_url (str): The base URL for the circuits website.
         a_to_z_url (str): The URL of the A-to-Z circuits page.
         logger (Logger, optional): Logger for logging messages.
 
@@ -74,7 +77,7 @@ def _fetch_circuit_links(a_to_z_url: str, logger: Logger | None = None) -> pd.Da
             if href.count("/") < 2:  # pylint: disable=magic-value-comparison
                 continue
 
-            full_url = urljoin(get_base_url(), href)
+            full_url = urljoin(base_url, href)
             circuit_name = link.text.strip()
             meta.append((circuit_name, full_url))
 
@@ -130,11 +133,12 @@ def fetch_data_from_circuits() -> str:
         str: The path to the CSV file containing circuit links.
     """
     logger = cast(Logger, get_run_logger())
+    base_url = get_base_url()
 
     # Fetch circuit links from the A-Z page
-    a_to_z_url = urljoin(get_base_url(), "/find-a-circuit/a-to-z-circuit-list.html")
+    a_to_z_url = urljoin(base_url, "/find-a-circuit/a-to-z-circuit-list.html")
     logger.info("Fetching circuit links from %s...", a_to_z_url)
-    circuits_meta_df = _fetch_circuit_links(a_to_z_url, logger=logger)
+    circuits_meta_df = _fetch_circuit_links(base_url, a_to_z_url, logger=logger)
     circuits_meta_df["file_path"] = circuits_meta_df["Circuit Name"].apply(
         _get_circuit_file_path
     )

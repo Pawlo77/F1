@@ -16,12 +16,8 @@ from sqlalchemy import JSON, Column, DateTime, Float, Index, Integer, String, Te
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session, sessionmaker
 
-from ...utils import Base, load_default_sqlalchemy_connection
-from . import get_output_dir
-
-
-class UploadError(Exception):
-    """Custom exception for upload errors."""
+from ...utils import Base, UploadError, load_default_sqlalchemy_connection
+from .utils import get_output_dir
 
 
 class Circuit(Base):

@@ -18,7 +18,7 @@ from bs4.element import Tag
 from prefect import task
 from prefect.logging import get_run_logger
 
-from . import get_base_url, get_output_dir
+from .utils import get_base_url, get_output_dir
 
 
 class ScrapeError(Exception):
@@ -67,7 +67,7 @@ def _extract_lat_long(map_src: str) -> Tuple[float, float]:
 # pylint: disable=too-many-statements
 # pylint: disable=too-many-branches
 def _scrape_individual_circuit(
-    file_path: str, logger: Logger | None = None
+    base_url: str, file_path: str, logger: Logger | None = None
 ) -> Dict[str, Any]:
     """
     Scrape individual circuit data from the provided HTML file.
@@ -83,6 +83,7 @@ def _scrape_individual_circuit(
         - photos: a list of local paths where photos have been downloaded
 
     Args:
+        base_url (str): The base URL for the circuits website.
         file_path (str): The path to the HTML file containing circuit data.
         logger (Logger, optional): Logger instance for logging messages.
 
@@ -161,8 +162,8 @@ def _scrape_individual_circuit(
                     )
             # Merge paragraphs in each segment
             history_segments: Dict[str, str] = {}
-            for key in history_segments_raw:
-                history_segments[key] = " ".join(history_segments[key]).strip()
+            for key, val in history_segments_raw.items():
+                history_segments[key] = " ".join(val).strip()
             data["history"] = history_segments
         else:
             raise ValueError("No history section found.")
@@ -295,9 +296,7 @@ def _scrape_individual_circuit(
                                                 toggled_div_img.get("alt")
                                             )
                                             entry["absolute_img_src"] = (
-                                                urljoin(
-                                                    get_base_url(), entry["img_src"]
-                                                )
+                                                urljoin(base_url, entry["img_src"])
                                                 if entry["img_src"]
                                                 else None
                                             )
@@ -386,6 +385,7 @@ def scrape_data_from_circuits(circuits_meta_df_path: str) -> str:
         str: Path to the CSV file containing the scraped data.
     """
     logger = cast(Logger, get_run_logger())
+    base_url = get_base_url()
 
     # Read the circuit links CSV file
     logger.info("Reading circuit links from: %s...", circuits_meta_df_path)
@@ -397,7 +397,9 @@ def scrape_data_from_circuits(circuits_meta_df_path: str) -> str:
         circuits_data = list(
             executor.map(
                 lambda row: {
-                    **_scrape_individual_circuit(row["file_path"], logger=logger),
+                    **_scrape_individual_circuit(
+                        base_url, row["file_path"], logger=logger
+                    ),
                     "circuit_name": row["Circuit Name"],
                     "url": row["URL"],
                 },
