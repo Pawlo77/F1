@@ -11,7 +11,7 @@ jobs:
     environment: prod
     env:
       PREFECT_CLOUD_API_KEY: ${{ secrets.PREFECT_CLOUD_API_KEY }}
-      PREFECT_CLOUD_WORKSPACE: pawel-pozorski/default
+      PREFECT_CLOUD_WORKSPACE: hurtownie-f1db/default
       REPO_URL: https://github.com/Pawlo77/F1.git
       REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
 
