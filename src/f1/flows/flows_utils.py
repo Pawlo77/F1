@@ -30,7 +30,7 @@ from sqlalchemy import (
     inspect,
     text,
 )
-from sqlalchemy.exc import OperationalError, SQLAlchemyError
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 
@@ -172,9 +172,10 @@ class _UploadWorker(threading.Thread):
         self.modified_count = 0
         self.processed_count = 0
 
+        self.exception: Exception | None = None
         self.name = f"_UploadWorker-{id(self)}"
 
-    def run(self, max_retries: int = 3, retries_delay: int = 5) -> None:
+    def run(self, max_retries: int = 3, retries_delay: int = 10) -> None:
         """
         Run the worker thread to process rows from the queue.
 
@@ -194,14 +195,14 @@ class _UploadWorker(threading.Thread):
 
                     for take in range(max_retries):
                         try:
-                            if self.class_obj.upsert(
-                                self.pk_keys,
-                                thread_session,
-                                cur_row,
-                                logger=self.logger,
-                            ):
-                                self.modified_count += 1
-                            thread_session.commit()
+                            with thread_session.begin():
+                                if self.class_obj.upsert(
+                                    self.pk_keys,
+                                    thread_session,
+                                    cur_row,
+                                    logger=self.logger,
+                                ):
+                                    self.modified_count += 1
 
                             self.processed_count += 1
                             if (
@@ -216,7 +217,7 @@ class _UploadWorker(threading.Thread):
                             self.queue.task_done()
                             break
 
-                        except OperationalError as e:
+                        except Exception as e:  # pylint: disable=broad-exception-caught
                             # Handle database connection errors
                             if self.logger:
                                 self.logger.error(
@@ -225,8 +226,13 @@ class _UploadWorker(threading.Thread):
                                     e,
                                     take,
                                 )
-                            thread_session.rollback()
                             if take == max_retries - 1:
+                                if self.logger:
+                                    self.logger.error(
+                                        "Error processing row in %s: %s", self.name, e
+                                    )
+
+                                self.exception = e
                                 raise UploadError(
                                     (
                                         "Max retries reached for row "
@@ -234,14 +240,6 @@ class _UploadWorker(threading.Thread):
                                     )
                                 ) from e
                             sleep(retries_delay)
-
-                        except Exception as e:
-                            thread_session.rollback()
-                            if self.logger:
-                                self.logger.error(
-                                    "Error processing row in %s: %s", self.name, e
-                                )
-                            raise UploadError(f"Error in {self.name}") from e
 
 
 # pylint: disable=too-many-branches,too-many-statements
@@ -337,6 +335,8 @@ def upload_data(
         while not work_queue.empty():
             for worker in workers:
                 if not worker.is_alive():
+                    if worker.exception:
+                        raise worker.exception
                     raise UploadError(f"Worker {worker.name} has stopped unexpectedly.")
             sleep(1.0)
 

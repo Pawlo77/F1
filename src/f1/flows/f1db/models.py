@@ -2368,7 +2368,7 @@ class RaceDriverStanding(Base, DWHMixin):
     )
 
 
-class RaceConstructorStanding(Base):
+class RaceConstructorStanding(Base, DWHMixin):
     """Model for the race_constructor_standing table."""
 
     __tablename__ = "race_constructor_standing"
@@ -2388,10 +2388,6 @@ class RaceConstructorStanding(Base):
                 "OR position_text IN ('DSQ', 'EX')"
             ),
             name="check_rcs_position_text_pattern",
-        ),
-        CheckConstraint(
-            "positions_gained IS NULL OR positions_gained >= 0",
-            name="check_rcs_positions_gained_positive_or_null",
         ),
         {"schema": "f1db", "comment": "The constructor standings after the race."},
     )
@@ -2470,4 +2466,5 @@ TABLES_MAP: Tuple[Tuple[str, DWHMixin]] = (
     (RaceData.__tablename__, RaceData),
     (RaceDriverStanding.__tablename__, RaceDriverStanding),
     (SeasonTyreManufacturer.__tablename__, SeasonTyreManufacturer),
+    (RaceConstructorStanding.__tablename__, RaceConstructorStanding),
 )
