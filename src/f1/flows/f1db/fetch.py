@@ -120,15 +120,9 @@ def fetch_data_from_f1db() -> str:
         logger=logger,
     )
 
-    logger.info("Extracting CSV files...")
+    logger.info("Extracting files...")
     with zipfile.ZipFile(target_file_path, "r") as zip_ref:
         zip_ref.extractall(output_dir)
-
-    logger.info(
-        'Extracted %d CSV files to the "%s" directory.',
-        len(zip_ref.namelist()),
-        output_dir,
-    )
 
     return os.path.join(output_dir, "f1db-sql-sqlite-single-inserts.sql")
 
