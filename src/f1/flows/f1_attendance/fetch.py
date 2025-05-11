@@ -1,3 +1,6 @@
+# Fetch files are very simmilar
+# pylint: disable=R0801
+
 """
 Prefect task to fetch circuits data from the A-to-Z circuits page.
 """

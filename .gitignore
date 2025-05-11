@@ -1,11 +1,15 @@
 # Deployment files
 depolyments/
+F1-main/
 
 # Output files
 output/
 
 # Macos
 .DS_Store
+
+# VS Code
+.vscode/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

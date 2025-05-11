@@ -30,6 +30,26 @@ deployments:
       name: default-work-pool
     schedule:
       cron: "0 3 1 * *"
-    tags: ["racing-circuits"]
+    tags: ["web"]
+    version: "1.0"
+    parameters: {}
+
+  - name: f1_attandance
+    entrypoint: src/f1/flows/f1_attendance/elt.py:elt
+    work_pool:
+      name: default-work-pool
+    schedule:
+      cron: "0 3 * * 1"
+    tags: ["web"]
+    version: "1.0"
+    parameters: {}
+
+  - name: f1db
+    entrypoint: src/f1/flows/f1db/elt.py:elt
+    work_pool:
+      name: default-work-pool
+    schedule:
+      cron: "0 3 * * 1"
+    tags: ["sql"]
     version: "1.0"
     parameters: {}

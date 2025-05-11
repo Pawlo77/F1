@@ -17,3 +17,19 @@ DB_PASSWORD=
 ```
 
 In poetry home run `poetry run deploy && poetry run prefect deploy --all`.
+
+# Local run for prefect
+
+```bash
+prefect server start
+
+# in diferent terminal
+prefect worker start --pool 'default-work-pool'
+```
+
+# Local run of flows
+
+For example for entire elt process for Racing Circuits:
+```
+clear && poetry run python -m src.f1.flows.racing_circuits.elt
+```

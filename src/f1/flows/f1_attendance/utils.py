@@ -1,3 +1,6 @@
+# Util files are very simmilar
+# pylint: disable=R0801
+
 """Utility functions for the racing circuits flow."""
 
 from __future__ import annotations

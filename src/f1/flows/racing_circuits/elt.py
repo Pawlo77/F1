@@ -1,11 +1,16 @@
+# Elt files are very simmilar
+# pylint: disable=R0801
+
 """
 Elt flow for racing circuits data.
 """
 
 from __future__ import annotations
 
+import os
+import sys
 from logging import Logger
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from prefect import flow
 from prefect.logging import get_run_logger
@@ -13,6 +18,14 @@ from prefect.logging import get_run_logger
 from .fetch import fetch_data_from_circuits
 from .scrape import scrape_data_from_circuits
 from .upload import upload_data_from_circuits
+from .utils import get_output_dir
+
+# workaround for import issue in prefect
+if TYPE_CHECKING:
+    from ..flows_utils import clean_up_output_dir
+else:
+    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+    from flows_utils import clean_up_output_dir
 
 
 @flow(
@@ -44,6 +57,8 @@ def elt() -> None:
 
     logger.info("Starting uploading data to database...")
     upload_data_from_circuits(circuits_df_path)
+
+    clean_up_output_dir(output_dir=get_output_dir(), logger=logger)
 
 
 if __name__ == "__main__":

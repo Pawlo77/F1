@@ -4,8 +4,10 @@ Elt flow for f1destinations attendance data.
 
 from __future__ import annotations
 
+import os
+import sys
 from logging import Logger
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from prefect import flow
 from prefect.logging import get_run_logger
@@ -13,12 +15,20 @@ from prefect.logging import get_run_logger
 from .fetch import fetch_data_from_f1destinations
 from .scrape import scrape_data_from_f1destinations
 from .upload import upload_data_from_f1destinations
+from .utils import get_output_dir
+
+# workaround for import issue in prefect
+if TYPE_CHECKING:
+    from ..flows_utils import clean_up_output_dir
+else:
+    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+    from flows_utils import clean_up_output_dir
 
 
 @flow(
-    name="elt_circuits",
+    name="elt_attendance",
     description=(
-        "Extract, Load, and Transform circuits data. "
+        "Extract, Load, and Transform attendance data. "
         "First download the data using `fetch_data_from_f1destinations`,"
         "scrape the data using `scrape_data_from_f1destinations`, "
         "and then finally upload the data using `upload_data_from_f1destinations`"
@@ -44,6 +54,8 @@ def elt() -> None:
 
     logger.info("Starting uploading data to database...")
     upload_data_from_f1destinations(attendance_df_path)
+
+    clean_up_output_dir(output_dir=get_output_dir(), logger=logger)
 
 
 if __name__ == "__main__":

@@ -1,3 +1,6 @@
+# All models need to be imported to register them in the metadata
+# pylint: disable=wildcard-import,unused-wildcard-import
+
 """
 This script is used to log into Prefect Cloud and create work pools for the deployment.
 It uses the Prefect CLI to perform these actions.
@@ -9,6 +12,13 @@ import subprocess
 from dotenv import load_dotenv
 from prefect_github import GitHubCredentials
 from prefect_sqlalchemy import ConnectionComponents, SqlAlchemyConnector, SyncDriver
+from sqlalchemy import text
+
+# import all models from the project
+from src.f1.flows.f1_attendance.models import *  # noqa: F401,F403
+from src.f1.flows.f1db.models import *  # noqa: F401,F403
+from src.f1.flows.flows_utils import Base, load_default_sqlalchemy_connection
+from src.f1.flows.racing_circuits.models import *  # noqa: F401,F403
 
 load_dotenv()
 
@@ -141,6 +151,35 @@ def create_blocks():
     sqlalchemy_block.save("f1-mssql-azure", overwrite=True)
 
 
+def create_sqlalchemy_objects():
+    """
+    Create a SQLAlchemy connection using the default connector.
+    """
+    with load_default_sqlalchemy_connection() as conn:
+        schemas = [
+            {"name": "web", "create": "webx"},
+            {"name": "f1db", "create": "f1dbx"},
+        ]
+
+        for schema in schemas:
+            create_schema_query = text("""
+                IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = :schema_name)
+                BEGIN
+                    DECLARE @sql NVARCHAR(MAX);
+                    SET @sql = 'CREATE SCHEMA ' + QUOTENAME(:schema_create);
+                    EXEC sp_executesql @sql;
+                END
+            """)
+            conn.execute(
+                create_schema_query,
+                {"schema_name": schema["name"], "schema_create": schema["create"]},
+            )
+
+        engine = conn.engine
+        # Base.metadata.drop_all(engine)
+        Base.metadata.create_all(engine)
+
+
 def main():
     """
     Main function to execute the deployment process.
@@ -148,11 +187,17 @@ def main():
     # log_into_prefect_cloud()
     # print("Logged into Prefect Cloud successfully.")
 
-    create_work_pools()
-    print("Work pools created successfully.")
+    # create_work_pools()
+    # print("Work pools created successfully.")
 
-    create_blocks()
-    print("Blocks created successfully.")
+    # create_blocks()
+    # print("Blocks created successfully.")
+
+    create_sqlalchemy_objects()
+    print("SQLAlchemy objects created successfully.")
+    print("Registered tables in metadata:")
+    for table_name in Base.metadata.tables.keys():
+        print(f"- {table_name}")
 
 
 if __name__ == "__main__":
