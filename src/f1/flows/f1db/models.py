@@ -1,5 +1,7 @@
-# Upload files are very simmilar, models do not have public methods, no type definition
-# pylint: disable=R0801
+# Upload files are very similar, models do not have public methods,
+# Decimal columns require type definition
+#
+# pylint: disable=duplicate-code
 # pylint: disable=too-few-public-methods,too-many-lines
 # type: ignore
 

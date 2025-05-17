@@ -1,5 +1,5 @@
 # Elt files are very simmilar
-# pylint: disable=R0801
+# pylint: disable=duplicate-code
 
 """
 Elt flow for f1db data.

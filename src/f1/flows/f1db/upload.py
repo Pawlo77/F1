@@ -1,5 +1,5 @@
 # Upload files are very simmilar
-# pylint: disable=R0801
+# pylint: disable=duplicate-code
 
 """
 Prefect task to upload f1dv data to the database.

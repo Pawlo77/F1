@@ -1,5 +1,5 @@
 # Upload files are very simmilar, models do not have public methods
-# pylint: disable=R0801
+# pylint: disable=duplicate-code
 # pylint: disable=too-few-public-methods
 
 """

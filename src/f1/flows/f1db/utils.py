@@ -1,5 +1,5 @@
 # Util files are very simmilar
-# pylint: disable=R0801
+# pylint: disable=duplicate-code
 
 """Utility functions for the f1db flow."""
 
