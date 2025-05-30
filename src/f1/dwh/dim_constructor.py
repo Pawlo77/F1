@@ -20,20 +20,27 @@ class DimConstructor(Base, DWHMixin):
     __tablename__ = "dim_constructor"
     __table_args__ = ({"schema": "DWH", "comment": "Source tables: f1db.construct"},)
 
+    id = Column(
+    BigInteger,
+    primary_key=True,
+    autoincrement=True,
+    comment="Primary key for dim_constructor. Business key is constructor_name"
+    )
+
     constructor_name = Column(
         String(100),
         nullable=False,
-        comment="Short name of the constructor. From f1db.construct",
+        comment="Short name of the constructor. From f1db.construct. Can be modified on source.",
     )
     constructor_full_name = Column(
         String(100),
         nullable=False,
-        comment="Full official name of the constructor. From f1db.construct",
+        comment="Full official name of the constructor. From f1db.construct. Can be modified on source.",
     )
     country_id = Column(
         BigInteger,
         ForeignKey(DimCountry.dwh_id),
         nullable=False,
         index=True,
-        comment="Foreign key to dim_country.",
+        comment="Foreign key to dim_country. Can be modified on source.",
     )
