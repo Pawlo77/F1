@@ -2,6 +2,10 @@
 
 from __future__ import annotations
 
+import os
+import sys
+from typing import TYPE_CHECKING
+
 from sqlalchemy import (
     BigInteger,
     Boolean,
@@ -13,8 +17,15 @@ from sqlalchemy import (
     String,
 )
 
-from .base import Base, DWHMixin
+from .base import DWHMixin
 from .dim_circuit import DimCircuit
+
+# workaround for import issue in prefect
+if TYPE_CHECKING:
+    from ..flows_utils import Base
+else:
+    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+    from flows_utils import Base
 
 
 # pylint: disable=too-few-public-methods, duplicate-code
@@ -25,23 +36,25 @@ class DimRace(Base, DWHMixin):
     __table_args__ = (
         {
             "schema": "DWH",
-            "comment": "Source tables: f1db.race, f1db.grand_prix, web.attendance",
+            "comment": "Source tables: f1db.race, f1db.grand_prix, web.attendance. Business key is race_date.",
         },
     )
 
-    id = Column(
-    BigInteger,
-    primary_key=True,
-    autoincrement=True,
-    comment="Primary key for dim_race. Business key is race_date + race_grand_prix_name"
+    race_date = Column(
+        Date,
+        nullable=False,
+        comment="Date of the race. From f1db.race. Can't be modified on source.",
+        index=True,
     )
-
-    race_date = Column(Date, nullable=False, comment="Date of the race. From f1db.race. Can't be modified on source.")
     race_time = Column(
-        String, nullable=True, comment="Time of the race (if available). From f1db.race. Can't be modified on source."
+        String,
+        nullable=True,
+        comment="Time of the race (if available). From f1db.race. Can't be modified on source.",
     )
     race_round = Column(
-        Integer, nullable=False, comment="Race round number. From f1db.race. Can't be modified on source."
+        Integer,
+        nullable=False,
+        comment="Race round number. From f1db.race. Can't be modified on source.",
     )
 
     race_grand_prix_name = Column(
@@ -82,7 +95,9 @@ class DimRace(Base, DWHMixin):
         comment="Qualifying format used for the race. From f1db.race. Can't be modified on source.",
     )
     race_sprint_qualifying_format = Column(
-        String(20), nullable=True, comment="Sprint qualifying format. From f1db.race. Can't be modified on source."
+        String(20),
+        nullable=True,
+        comment="Sprint qualifying format. From f1db.race. Can't be modified on source.",
     )
 
     circuit_id = Column(
@@ -94,19 +109,29 @@ class DimRace(Base, DWHMixin):
     )
 
     race_turns = Column(
-        Integer, nullable=False, comment="Number of turns on the circuit. From Circuit. Can't be modified on source."
+        Integer,
+        nullable=False,
+        comment="Number of turns on the circuit. From Circuit. Can't be modified on source.",
     )
     race_laps = Column(
-        Integer, nullable=False, comment="Number of laps in the race. From f1db.race. Can't be modified on source."
+        Integer,
+        nullable=False,
+        comment="Number of laps in the race. From f1db.race. Can't be modified on source.",
     )
     race_distance = Column(
-        Numeric(6, 3), nullable=False, comment="Total race distance. From f1db.race. Can't be modified on source."
+        Numeric(6, 3),
+        nullable=False,
+        comment="Total race distance. From f1db.race. Can't be modified on source.",
     )
     race_scheduled_laps = Column(
-        Integer, nullable=True, comment="Scheduled number of laps. From f1db.race. Can't be modified on source."
+        Integer,
+        nullable=True,
+        comment="Scheduled number of laps. From f1db.race. Can't be modified on source.",
     )
     race_scheduled_distance = Column(
-        Numeric(6, 3), nullable=True, comment="Scheduled race distance. From f1db.race. Can't be modified on source."
+        Numeric(6, 3),
+        nullable=True,
+        comment="Scheduled race distance. From f1db.race. Can't be modified on source.",
     )
 
     race_drivers_championship_decider = Column(
@@ -121,7 +146,9 @@ class DimRace(Base, DWHMixin):
     )
 
     race_pre_qualifying_date = Column(
-        Date, nullable=True, comment="Date of pre-qualifying session. From f1db.race. Can't be modified on source."
+        Date,
+        nullable=True,
+        comment="Date of pre-qualifying session. From f1db.race. Can't be modified on source.",
     )
     race_pre_qualifying_time = Column(
         String(5),
@@ -129,31 +156,49 @@ class DimRace(Base, DWHMixin):
         comment="Time of pre-qualifying session. From f1db.race. Can't be modified on source.",
     )
     race_free_practice_1_date = Column(
-        Date, nullable=True, comment="Date of Free Practice 1. From f1db.race. Can't be modified on source."
+        Date,
+        nullable=True,
+        comment="Date of Free Practice 1. From f1db.race. Can't be modified on source.",
     )
     race_free_practice_1_time = Column(
-        String(5), nullable=True, comment="Time of Free Practice 1. From f1db.race. Can't be modified on source."
+        String(5),
+        nullable=True,
+        comment="Time of Free Practice 1. From f1db.race. Can't be modified on source.",
     )
     race_free_practice_2_date = Column(
-        Date, nullable=True, comment="Date of Free Practice 2. From f1db.race. Can't be modified on source."
+        Date,
+        nullable=True,
+        comment="Date of Free Practice 2. From f1db.race. Can't be modified on source.",
     )
     race_free_practice_2_time = Column(
-        String(5), nullable=True, comment="Time of Free Practice 2. From f1db.race. Can't be modified on source."
+        String(5),
+        nullable=True,
+        comment="Time of Free Practice 2. From f1db.race. Can't be modified on source.",
     )
     race_free_practice_3_date = Column(
-        Date, nullable=True, comment="Date of Free Practice 3. From f1db.race. Can't be modified on source."
+        Date,
+        nullable=True,
+        comment="Date of Free Practice 3. From f1db.race. Can't be modified on source.",
     )
     race_free_practice_3_time = Column(
-        String(5), nullable=True, comment="Time of Free Practice 3. From f1db.race. Can't be modified on source."
+        String(5),
+        nullable=True,
+        comment="Time of Free Practice 3. From f1db.race. Can't be modified on source.",
     )
     race_free_practice_4_date = Column(
-        Date, nullable=True, comment="Date of Free Practice 4. From f1db.race. Can't be modified on source."
+        Date,
+        nullable=True,
+        comment="Date of Free Practice 4. From f1db.race. Can't be modified on source.",
     )
     race_free_practice_4_time = Column(
-        String(5), nullable=True, comment="Time of Free Practice 4. From f1db.race. Can't be modified on source."
+        String(5),
+        nullable=True,
+        comment="Time of Free Practice 4. From f1db.race. Can't be modified on source.",
     )
     race_qualifying_1_date = Column(
-        Date, nullable=True, comment="Date of Qualifying 1 session. From f1db.race. Can't be modified on source."
+        Date,
+        nullable=True,
+        comment="Date of Qualifying 1 session. From f1db.race. Can't be modified on source.",
     )
     race_qualifying_1_time = Column(
         String(5),
@@ -161,7 +206,9 @@ class DimRace(Base, DWHMixin):
         comment="Time of Qualifying 1 session. From f1db.race. Can't be modified on source.",
     )
     race_qualifying_2_date = Column(
-        Date, nullable=True, comment="Date of Qualifying 2 session. From f1db.race. Can't be modified on source."
+        Date,
+        nullable=True,
+        comment="Date of Qualifying 2 session. From f1db.race. Can't be modified on source.",
     )
     race_qualifying_2_time = Column(
         String(5),
@@ -169,7 +216,9 @@ class DimRace(Base, DWHMixin):
         comment="Time of Qualifying 2 session. From f1db.race. Can't be modified on source.",
     )
     race_qualifying_date = Column(
-        Date, nullable=True, comment="Date of main qualifying session. From f1db.race. Can't be modified on source."
+        Date,
+        nullable=True,
+        comment="Date of main qualifying session. From f1db.race. Can't be modified on source.",
     )
     race_qualifying_time = Column(
         String(5),
@@ -187,14 +236,22 @@ class DimRace(Base, DWHMixin):
         comment="Time of sprint qualifying session. From f1db.race. Can't be modified on source.",
     )
     race_sprint_race_date = Column(
-        Date, nullable=True, comment="Date of sprint race. From f1db.race. Can't be modified on source."
+        Date,
+        nullable=True,
+        comment="Date of sprint race. From f1db.race. Can't be modified on source.",
     )
     race_sprint_race_time = Column(
-        String(5), nullable=True, comment="Time of sprint race. From f1db.race. Can't be modified on source."
+        String(5),
+        nullable=True,
+        comment="Time of sprint race. From f1db.race. Can't be modified on source.",
     )
     race_warming_up_date = Column(
-        Date, nullable=True, comment="Date of warm-up session. From f1db.race. Can't be modified on source."
+        Date,
+        nullable=True,
+        comment="Date of warm-up session. From f1db.race. Can't be modified on source.",
     )
     race_warming_up_time = Column(
-        String(5), nullable=True, comment="Time of warm-up session. From f1db.race. Can't be modified on source."
+        String(5),
+        nullable=True,
+        comment="Time of warm-up session. From f1db.race. Can't be modified on source.",
     )

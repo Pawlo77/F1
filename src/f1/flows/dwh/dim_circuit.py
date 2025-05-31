@@ -2,19 +2,29 @@
 
 from __future__ import annotations
 
+import os
+import sys
+from typing import TYPE_CHECKING
+
 from sqlalchemy import (
     BigInteger,
     Column,
     Float,
     ForeignKey,
-    PrimaryKey,
     Integer,
     Numeric,
     String,
 )
 
-from .base import Base, DWHMixin
+from .base import DWHMixin
 from .dim_country import DimCountry
+
+# workaround for import issue in prefect
+if TYPE_CHECKING:
+    from ..flows_utils import Base
+else:
+    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+    from flows_utils import Base
 
 
 # pylint: disable=too-few-public-methods, duplicate-code
@@ -23,14 +33,10 @@ class DimCircuit(Base, DWHMixin):
 
     __tablename__ = "dim_circuit"
     __table_args__ = (
-        {"schema": "DWH", "comment": "Source tables: f1.country, f1.continent"},
-    )
-
-    id = Column(
-    BigInteger,
-    primary_key=True,
-    autoincrement=True,
-    comment="Primary key for dim_circuit. Business key is circuit_name"
+        {
+            "schema": "DWH",
+            "comment": "Source tables: f1.country, f1.continent. Business key is circuit_name",
+        },
     )
 
     country_id = Column(
@@ -45,7 +51,7 @@ class DimCircuit(Base, DWHMixin):
         String(100),
         nullable=False,
         index=True,
-        comment="The name of the circuit. From f1db.circuit. Can be modified on source.",
+        comment="The name of the circuit. From f1db.circuit. Can't be modified on source.",
     )
     circuit_full_name = Column(
         String(100),
@@ -94,7 +100,9 @@ class DimCircuit(Base, DWHMixin):
         comment="Rating of the circuit. From web.circuits_details. Can be modified on source.",
     )
     circuit_reviews_num = Column(
-        Integer, nullable=False, comment="Number of reviews. From web.circuits_details. Can be modified on source."
+        Integer,
+        nullable=False,
+        comment="Number of reviews. From web.circuits_details. Can be modified on source.",
     )
     circuit_website = Column(
         String(510),

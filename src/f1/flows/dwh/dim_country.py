@@ -2,13 +2,20 @@
 
 from __future__ import annotations
 
-from sqlalchemy import (
-    Column,
-    String,
-    BigInteger
-)
+import os
+import sys
+from typing import TYPE_CHECKING
 
-from .base import Base, DWHMixin
+from sqlalchemy import Column, String
+
+from .base import DWHMixin
+
+# workaround for import issue in prefect
+if TYPE_CHECKING:
+    from ..flows_utils import Base
+else:
+    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+    from flows_utils import Base
 
 
 # pylint: disable=too-few-public-methods, duplicate-code
@@ -17,14 +24,10 @@ class DimCountry(Base, DWHMixin):
 
     __tablename__ = "dim_country"
     __table_args__ = (
-        {"schema": "DWH", "comment": "Source tables: f1.country, f1.continent"},
-    )
-
-    id = Column(
-    BigInteger,
-    primary_key=True,
-    autoincrement=True,
-    comment="Primary key for dim_country. Business key is country_name"
+        {
+            "schema": "DWH",
+            "comment": "Source tables: f1.country, f1.continent. Business key is country_name.",
+        },
     )
 
     country_alpha2_code = Column(
@@ -43,6 +46,7 @@ class DimCountry(Base, DWHMixin):
         String(100),
         nullable=False,
         unique=True,
+        index=True,
         comment="Country name. From f1db.country. Can't be modified on source.",
     )
     country_demonym = Column(

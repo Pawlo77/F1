@@ -2,6 +2,10 @@
 
 from __future__ import annotations
 
+import os
+import sys
+from typing import TYPE_CHECKING
+
 from sqlalchemy import (
     BigInteger,
     Column,
@@ -9,8 +13,15 @@ from sqlalchemy import (
     String,
 )
 
-from .base import Base, DWHMixin
+from .base import DWHMixin
 from .dim_country import DimCountry
+
+# workaround for import issue in prefect
+if TYPE_CHECKING:
+    from ..flows_utils import Base
+else:
+    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+    from flows_utils import Base
 
 
 # pylint: disable=too-few-public-methods, duplicate-code
@@ -21,26 +32,23 @@ class DimEngineManufacturer(Base, DWHMixin):
     __table_args__ = (
         {
             "schema": "DWH",
-            "comment": "Source tables: f1db.season_engine_manufacturer, f1db.engine_manufacturer",
+            "comment": (
+                "Source tables: f1db.season_engine_manufacturer, "
+                "f1db.engine_manufacturer. Business key is engine_name."
+            ),
         },
-    )
-
-    id = Column(
-    BigInteger,
-    primary_key=True,
-    autoincrement=True,
-    comment="Primary key for dim_EngineManufacturer. Business key is engine_name"
     )
 
     engine_name = Column(
         String(100),
         nullable=False,
-        comment="The name of the engine manufacturer. From f1db.engine_manufacturer. Can be modified on source.",
+        index=True,
+        comment="The name of the engine manufacturer. From f1db.engine_manufacturer. Can't be modified on source.",
     )
     country_id = Column(
         BigInteger,
         ForeignKey(DimCountry.dwh_id),
         nullable=False,
         index=True,
-        comment="Foreign key to dim_country. Can be modified on source.",
+        comment="Foreign key to dim_country. Can't be modified on source.",
     )

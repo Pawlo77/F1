@@ -23,7 +23,7 @@ repos:
     hooks:
       - id: flake8
         args:
-          - --max-line-length=100
+          - --max-line-length=120
           - --exclude=.git,__init__.py
           - --ignore=W503
 
@@ -61,7 +61,7 @@ repos:
       - id: pylint
         args:
           - --load-plugins=pylint.extensions.check_elif,pylint.extensions.docparams,pylint.extensions.magic_value
-          - --max-line-length=100
+          - --max-line-length=120
         additional_dependencies:
           - prefect[git,sqlalchemy]
           - python-dotenv

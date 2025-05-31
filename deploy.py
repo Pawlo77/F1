@@ -15,11 +15,13 @@ from prefect_github import GitHubCredentials
 from prefect_sqlalchemy import ConnectionComponents, SqlAlchemyConnector, SyncDriver
 from sqlalchemy import text
 
+from src.f1.flows.dwh.models import *  # noqa: F401,F403
+
 # import all models from the project
 from src.f1.flows.f1_attendance.models import *  # noqa: F401,F403
 from src.f1.flows.f1db.models import *  # noqa: F401,F403
 from src.f1.flows.flows_utils import Base, load_default_sqlalchemy_connection
-from src.f1.flows.racing_circuits.models import *  # noqa: F401,F403
+from src.f1.flows.racing_circuits.models import *  # noqa: F401,F403,F811
 
 load_dotenv()
 
@@ -176,6 +178,7 @@ def create_sqlalchemy_objects():
         schemas = [
             {"name": "web", "create": "web"},
             {"name": "f1db", "create": "f1db"},
+            {"name": "DWH", "create": "DWH"},
         ]
 
         for schema in schemas:

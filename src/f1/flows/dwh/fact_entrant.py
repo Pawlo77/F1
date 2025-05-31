@@ -2,14 +2,25 @@
 
 from __future__ import annotations
 
+import os
+import sys
+from typing import TYPE_CHECKING
+
 from sqlalchemy import BigInteger, Boolean, Column, ForeignKey, Integer, Numeric, String
 
-from .base import Base, DWHMixin
+from .base import DWHMixin
 from .dim_constructor import DimConstructor
 from .dim_country import DimCountry
 from .dim_driver import DimDriver
 from .dim_engine_manufacturer import DimEngineManufacturer
 from .dim_tyre_manufacturer import DimTyreManufacturer
+
+# workaround for import issue in prefect
+if TYPE_CHECKING:
+    from ..flows_utils import Base
+else:
+    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+    from flows_utils import Base
 
 
 # pylint: disable=too-few-public-methods, duplicate-code
@@ -18,23 +29,23 @@ class FactEntrant(Base, DWHMixin):
 
     __tablename__ = "fact_entrant"
     __table_args__ = (
-        {"schema": "DWH", "comment": "Source tables: f1.race_data. From f1.race_data."},
-    )
-
-    id = Column(
-    BigInteger,
-    primary_key=True,
-    autoincrement=True,
-    comment="Primary key for FactEntrant. Business key is entrant_name + entrant_year"
+        {
+            "schema": "DWH",
+            "comment": "Source tables: f1.race_data. From f1.race_data. Business key is entrant_name + entrant_year.",
+        },
     )
 
     entrant_name = Column(
         String(100),
         nullable=False,
+        index=True,
         comment="Display name of the entrant. From f1db.entrant. Can't be modified on source.",
     )
     entrant_year = Column(
-        Integer, nullable=False, comment="Season year. From f1db.season_entrant. Can't be modified on source."
+        Integer,
+        nullable=False,
+        comment="Season year. From f1db.season_entrant. Can't be modified on source.",
+        index=True,
     )
     country_id = Column(
         BigInteger,
@@ -58,10 +69,14 @@ class FactEntrant(Base, DWHMixin):
         comment="Foreign key to dim_engine_manufacturer. Can't be modified on source.",
     )
     entrant_engine_name = Column(
-        String(100), nullable=False, comment="Short engine name. From f1db.engine. Can't be modified on source."
+        String(100),
+        nullable=False,
+        comment="Short engine name. From f1db.engine. Can't be modified on source.",
     )
     entrant_engine_full_name = Column(
-        String(100), nullable=False, comment="Full engine name. From f1db.engine. Can't be modified on source."
+        String(100),
+        nullable=False,
+        comment="Full engine name. From f1db.engine. Can't be modified on source.",
     )
     entrant_engine_capacity = Column(
         Numeric(2, 1),
@@ -76,7 +91,10 @@ class FactEntrant(Base, DWHMixin):
     entrant_engine_aspiration = Column(
         String(19),
         nullable=True,
-        comment="Aspiration type (e.g. Turbocharged, Naturally aspirated). From f1db.engine. Can't be modified on source.",
+        comment=(
+            "Aspiration type (e.g. Turbocharged, Naturally aspirated)."
+            " From f1db.engine. Can't be modified on source."
+        ),
     )
     tyre_manufacturer_id = Column(
         BigInteger,
@@ -86,10 +104,14 @@ class FactEntrant(Base, DWHMixin):
         comment="Foreign key to dim_tyre_manufacturer. Can't be modified on source.",
     )
     entrant_chassis_name = Column(
-        String(100), nullable=False, comment="Short chassis name. From Chassis. Can't be modified on source."
+        String(100),
+        nullable=False,
+        comment="Short chassis name. From Chassis. Can't be modified on source.",
     )
     entrant_chassis_full_name = Column(
-        String(100), nullable=False, comment="Full chassis name. From Chassis. Can't be modified on source."
+        String(100),
+        nullable=False,
+        comment="Full chassis name. From Chassis. Can't be modified on source.",
     )
     driver_id = Column(
         BigInteger,
@@ -111,5 +133,8 @@ class FactEntrant(Base, DWHMixin):
     entrant_test_driver = Column(
         Boolean,
         nullable=False,
-        comment="Indicates if this is a test/reserve driver. From f1db.season_entrant_driver. Can't be modified on source.",
+        comment=(
+            "Indicates if this is a test/reserve driver. "
+            "From f1db.season_entrant_driver. Can't be modified on source."
+        ),
     )

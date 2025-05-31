@@ -15,7 +15,6 @@ from sqlalchemy import (
     DateTime,
     String,
 )
-from sqlalchemy.orm import DeclarativeBase
 
 
 # pylint: disable=too-few-public-methods, duplicate-code
@@ -41,11 +40,3 @@ class DWHMixin:
     dwh_valid_to = Column(
         DateTime, index=True, nullable=True, comment="Deletion timestamp"
     )
-
-
-# pylint: disable=too-few-public-methods
-class Base(DeclarativeBase):
-    """
-    Base class for SQLAlchemy models.
-    This class is used to define the base for all SQLAlchemy models in the project.
-    """
