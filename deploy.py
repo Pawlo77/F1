@@ -9,6 +9,7 @@ It uses the Prefect CLI to perform these actions.
 import os
 import subprocess
 
+import sqlalchemy
 from dotenv import load_dotenv
 from prefect_github import GitHubCredentials
 from prefect_sqlalchemy import ConnectionComponents, SqlAlchemyConnector, SyncDriver
@@ -132,6 +133,22 @@ def create_blocks():
         )
 
     # Create SQLAlchemy connector block
+    # Create the database if it does not exist
+
+    # Connect to the master database to check for the existence of the target database
+    master_connection_str = (
+        f"mssql+pyodbc://{username}:{password}@{host}:{port}/master?"
+        "driver=ODBC+Driver+18+for+SQL+Server&encrypt=yes&"
+        "trustServerCertificate=yes&connectionTimeout=15"
+    )
+    master_engine = sqlalchemy.create_engine(master_connection_str)
+    with master_engine.connect() as conn:
+        conn.execution_options(isolation_level="AUTOCOMMIT").execute(
+            text(
+                f"IF DB_ID('{database}') IS NULL BEGIN CREATE DATABASE [{database}] END"
+            )
+        )
+
     sqlalchemy_block = SqlAlchemyConnector(
         connection_info=ConnectionComponents(
             driver=SyncDriver.MSSQL_PYODBC,
@@ -143,7 +160,7 @@ def create_blocks():
             query={
                 "driver": "ODBC Driver 18 for SQL Server",
                 "encrypt": "yes",
-                "trustServerCertificate": "no",
+                "trustServerCertificate": "yes",
                 "connectionTimeout": "15",
             },
         )
@@ -157,25 +174,23 @@ def create_sqlalchemy_objects():
     """
     with load_default_sqlalchemy_connection() as conn:
         schemas = [
-            {"name": "web", "create": "webx"},
-            {"name": "f1db", "create": "f1dbx"},
+            {"name": "web", "create": "web"},
+            {"name": "f1db", "create": "f1db"},
         ]
 
         for schema in schemas:
-            create_schema_query = text("""
-                IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = :schema_name)
+            print(f"Creating schema: {schema['name']} as {schema['create']}")
+            create_schema_query = text(f"""
+                IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = '{schema["name"]}')
                 BEGIN
-                    DECLARE @sql NVARCHAR(MAX);
-                    SET @sql = 'CREATE SCHEMA ' + QUOTENAME(:schema_create);
-                    EXEC sp_executesql @sql;
+                    EXEC('CREATE SCHEMA [{schema["create"]}]')
+                    COMMIT;
                 END
-            """)
-            conn.execute(
-                create_schema_query,
-                {"schema_name": schema["name"], "schema_create": schema["create"]},
-            )
+            """)  # nosec
+            conn.execute(create_schema_query)
 
         engine = conn.engine
+        print("Creating tables in the database...")
         # Base.metadata.drop_all(engine)
         Base.metadata.create_all(engine)
 
@@ -184,14 +199,15 @@ def main():
     """
     Main function to execute the deployment process.
     """
-    # log_into_prefect_cloud()
-    # print("Logged into Prefect Cloud successfully.")
+    if "PREFECT_CLOUD_API_KEY" in os.environ:  # pylint: disable=magic-value-comparison
+        log_into_prefect_cloud()
+        print("Logged into Prefect Cloud successfully.")
 
-    # create_work_pools()
-    # print("Work pools created successfully.")
+    create_work_pools()
+    print("Work pools created successfully.")
 
-    # create_blocks()
-    # print("Blocks created successfully.")
+    create_blocks()
+    print("Blocks created successfully.")
 
     create_sqlalchemy_objects()
     print("SQLAlchemy objects created successfully.")
