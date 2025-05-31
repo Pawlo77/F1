@@ -25,15 +25,22 @@ class DimEngineManufacturer(Base, DWHMixin):
         },
     )
 
+    id = Column(
+    BigInteger,
+    primary_key=True,
+    autoincrement=True,
+    comment="Primary key for dim_EngineManufacturer. Business key is engine_name"
+    )
+
     engine_name = Column(
         String(100),
         nullable=False,
-        comment="The name of the engine manufacturer. From f1db.engine_manufacturer",
+        comment="The name of the engine manufacturer. From f1db.engine_manufacturer. Can be modified on source.",
     )
     country_id = Column(
         BigInteger,
         ForeignKey(DimCountry.dwh_id),
         nullable=False,
         index=True,
-        comment="Foreign key to dim_country.",
+        comment="Foreign key to dim_country. Can be modified on source.",
     )
