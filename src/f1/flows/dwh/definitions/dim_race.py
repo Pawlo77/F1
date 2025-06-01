@@ -2,10 +2,6 @@
 
 from __future__ import annotations
 
-import os
-import sys
-from typing import TYPE_CHECKING
-
 from sqlalchemy import (
     BigInteger,
     Boolean,
@@ -17,15 +13,8 @@ from sqlalchemy import (
     String,
 )
 
-from .base import DWHMixin
+from .base import Base, DWHMixin
 from .dim_circuit import DimCircuit
-
-# workaround for import issue in prefect
-if TYPE_CHECKING:
-    from ..flows_utils import Base
-else:
-    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-    from flows_utils import Base
 
 
 # pylint: disable=too-few-public-methods, duplicate-code
@@ -81,7 +70,7 @@ class DimRace(Base, DWHMixin):
     race_official_name = Column(
         String(100),
         nullable=False,
-        comment="Official name of the event. From f1db.grand_prix. Can be modified on source.",
+        comment="Official name of the event. From f1db.race. Can be modified on source.",
     )
     race_weekend_attendance = Column(
         Integer,
@@ -111,7 +100,7 @@ class DimRace(Base, DWHMixin):
     race_turns = Column(
         Integer,
         nullable=False,
-        comment="Number of turns on the circuit. From Circuit. Can't be modified on source.",
+        comment="Number of turns on the circuit. From f1db.circuit. Can't be modified on source.",
     )
     race_laps = Column(
         Integer,

@@ -2,25 +2,14 @@
 
 from __future__ import annotations
 
-import os
-import sys
-from typing import TYPE_CHECKING
-
 from sqlalchemy import BigInteger, Boolean, Column, ForeignKey, Integer, Numeric, String
 
-from .base import DWHMixin
+from .base import Base, DWHMixin
 from .dim_constructor import DimConstructor
 from .dim_country import DimCountry
 from .dim_driver import DimDriver
 from .dim_engine_manufacturer import DimEngineManufacturer
 from .dim_tyre_manufacturer import DimTyreManufacturer
-
-# workaround for import issue in prefect
-if TYPE_CHECKING:
-    from ..flows_utils import Base
-else:
-    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-    from flows_utils import Base
 
 
 # pylint: disable=too-few-public-methods, duplicate-code
@@ -31,7 +20,11 @@ class FactEntrant(Base, DWHMixin):
     __table_args__ = (
         {
             "schema": "DWH",
-            "comment": "Source tables: f1.race_data. From f1.race_data. Business key is entrant_name + entrant_year.",
+            "comment": (
+                "Source tables: f1db.entrant, f1db.season_entrant, f1db.engine, f1db.season_entrant_driver. "
+                "Business key is entrant_name + entrant_year + constructor_id + engine_manufacturer_id + "
+                "entrant_engine_full_name + tyre_manufacturer_id + entrant_chassis_full_name + driver_id.",
+            ),
         },
     )
 
@@ -76,6 +69,7 @@ class FactEntrant(Base, DWHMixin):
     entrant_engine_full_name = Column(
         String(100),
         nullable=False,
+        index=True,
         comment="Full engine name. From f1db.engine. Can't be modified on source.",
     )
     entrant_engine_capacity = Column(
@@ -106,12 +100,13 @@ class FactEntrant(Base, DWHMixin):
     entrant_chassis_name = Column(
         String(100),
         nullable=False,
-        comment="Short chassis name. From Chassis. Can't be modified on source.",
+        comment="Short chassis name. From f1db.chassis. Can't be modified on source.",
     )
     entrant_chassis_full_name = Column(
         String(100),
         nullable=False,
-        comment="Full chassis name. From Chassis. Can't be modified on source.",
+        index=True,
+        comment="Full chassis name. From f1db.chassis. Can't be modified on source.",
     )
     driver_id = Column(
         BigInteger,

@@ -8,6 +8,7 @@ It uses the Prefect CLI to perform these actions.
 
 import os
 import subprocess
+from typing import Any
 
 import sqlalchemy
 from dotenv import load_dotenv
@@ -15,9 +16,8 @@ from prefect_github import GitHubCredentials
 from prefect_sqlalchemy import ConnectionComponents, SqlAlchemyConnector, SyncDriver
 from sqlalchemy import text
 
-from src.f1.flows.dwh.models import *  # noqa: F401,F403
-
 # import all models from the project
+from src.f1.flows.dwh.models import *  # noqa: F401,F403
 from src.f1.flows.f1_attendance.models import *  # noqa: F401,F403
 from src.f1.flows.f1db.models import *  # noqa: F401,F403
 from src.f1.flows.flows_utils import Base, load_default_sqlalchemy_connection
@@ -25,8 +25,19 @@ from src.f1.flows.racing_circuits.models import *  # noqa: F401,F403,F811
 
 load_dotenv()
 
+PROCEDURES_DIR: str = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    "src",
+    "f1",
+    "flows",
+    "dwh",
+    "procedures",
+)
+CLEAR_TMP_TABLES_PROCEDURES_DIR: str = os.path.join(PROCEDURES_DIR, "clear_tmp_tables")
+LOAD_PROCEDURES_DIR: str = os.path.join(PROCEDURES_DIR, "load")
 
-def log_into_prefect_cloud():
+
+def log_into_prefect_cloud() -> None:
     """
     Log into Prefect Cloud using the API key from environment variables.
     """
@@ -65,7 +76,7 @@ def log_into_prefect_cloud():
     )
 
 
-def create_work_pools():
+def create_work_pools() -> None:
     """
     Create work pools for the deployment.
     """
@@ -111,7 +122,7 @@ def create_work_pools():
         )
 
 
-def create_blocks():
+def create_blocks() -> None:
     """
     Create blocks for the deployment.
     """
@@ -170,7 +181,7 @@ def create_blocks():
     sqlalchemy_block.save("f1-mssql-azure", overwrite=True)
 
 
-def create_sqlalchemy_objects():
+def create_sqlalchemy_objects() -> None:
     """
     Create a SQLAlchemy connection using the default connector.
     """
@@ -198,6 +209,45 @@ def create_sqlalchemy_objects():
         Base.metadata.create_all(engine)
 
 
+def _create_procedure(filename: str, conn: Any) -> None:
+    """
+    Create a procedure from the given SQL file.
+    """
+    try:
+        with open(filename, "r", encoding="utf-8") as file:
+            procedure_sql = file.read()
+            conn.execute(text(procedure_sql))
+    except Exception as e:
+        print(f"Error creating procedure from {filename}: {e}")
+        raise e
+
+
+def create_procedures() -> None:
+    """
+    Create procedures from SQL files in the specified directories.
+    """
+    with load_default_sqlalchemy_connection() as conn:
+        for filename in os.listdir(PROCEDURES_DIR):
+            if filename.endswith(".sql"):
+                _create_procedure(os.path.join(PROCEDURES_DIR, filename), conn=conn)
+        for filename in os.listdir(CLEAR_TMP_TABLES_PROCEDURES_DIR):
+            if filename.endswith(".sql"):
+                _create_procedure(
+                    os.path.join(CLEAR_TMP_TABLES_PROCEDURES_DIR, filename), conn=conn
+                )
+        for filename in os.listdir(LOAD_PROCEDURES_DIR):
+            if filename.endswith(".sql"):
+                _create_procedure(
+                    os.path.join(LOAD_PROCEDURES_DIR, filename), conn=conn
+                )
+        for etl_filename in ["etl_dim.sql", "etl_fact.sql", "etl.sql"]:
+            etl_file_path = os.path.join(PROCEDURES_DIR, "etl", etl_filename)
+            if os.path.exists(etl_file_path):
+                _create_procedure(etl_file_path, conn=conn)
+            else:
+                print(f"ETL file {etl_file_path} does not exist.")
+
+
 def main():
     """
     Main function to execute the deployment process.
@@ -217,6 +267,9 @@ def main():
     print("Registered tables in metadata:")
     for table_name in Base.metadata.tables.keys():
         print(f"- {table_name}")
+
+    create_procedures()
+    print("Procedures listed successfully.")
 
 
 if __name__ == "__main__":

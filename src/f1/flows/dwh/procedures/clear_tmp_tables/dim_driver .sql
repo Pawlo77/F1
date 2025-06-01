@@ -1,0 +1,5 @@
+CREATE OR ALTER PROCEDURE dwh.LoadDimDriverClearTables
+AS
+BEGIN
+	DROP TABLE IF EXISTS #src__LoadDimDriver;
+END;

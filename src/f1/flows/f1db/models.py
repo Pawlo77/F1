@@ -1001,11 +1001,13 @@ class Circuit(Base, DWHMixin):
     latitude = Column(
         Numeric(10, 6),
         nullable=False,
+        index=True,
         comment="The latitude coordinate of the circuit.",
     )
     longitude = Column(
         Numeric(10, 6),
         nullable=False,
+        index=True,
         comment="The longitude coordinate of the circuit.",
     )
     length = Column(

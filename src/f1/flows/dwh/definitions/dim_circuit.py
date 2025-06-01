@@ -2,10 +2,6 @@
 
 from __future__ import annotations
 
-import os
-import sys
-from typing import TYPE_CHECKING
-
 from sqlalchemy import (
     BigInteger,
     Column,
@@ -16,15 +12,8 @@ from sqlalchemy import (
     String,
 )
 
-from .base import DWHMixin
+from .base import Base, DWHMixin
 from .dim_country import DimCountry
-
-# workaround for import issue in prefect
-if TYPE_CHECKING:
-    from ..flows_utils import Base
-else:
-    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-    from flows_utils import Base
 
 
 # pylint: disable=too-few-public-methods, duplicate-code
@@ -35,7 +24,7 @@ class DimCircuit(Base, DWHMixin):
     __table_args__ = (
         {
             "schema": "DWH",
-            "comment": "Source tables: f1.country, f1.continent. Business key is circuit_name",
+            "comment": "Source tables: f1.country, f1.circuit, web.circuits_details. Business key is circuit_full_name",
         },
     )
 
@@ -51,13 +40,13 @@ class DimCircuit(Base, DWHMixin):
         String(100),
         nullable=False,
         index=True,
-        comment="The name of the circuit. From f1db.circuit. Can't be modified on source.",
+        comment="The name of the circuit. From f1db.circuit. Can be modified on source.",
     )
     circuit_full_name = Column(
         String(100),
         nullable=False,
         index=True,
-        comment="The full name of the circuit. From f1db.circuit. Can be modified on source.",
+        comment="The full name of the circuit. From f1db.circuit. Can't be modified on source.",
     )
 
     circuit_type = Column(
@@ -81,12 +70,12 @@ class DimCircuit(Base, DWHMixin):
     circuit_latitude = Column(
         Numeric(10, 6),
         nullable=False,
-        comment="The latitude coordinate of the circuit. From f1db.circuit. Can be modified on source.",
+        comment="The latitude coordinate of the circuit. From f1db.circuit. Can't be modified on source.",
     )
     circuit_longitude = Column(
         Numeric(10, 6),
         nullable=False,
-        comment="The longitude coordinate of the circuit. From f1db.circuit. Can be modified on source.",
+        comment="The longitude coordinate of the circuit. From f1db.circuit. Can't be modified on source.",
     )
     circuit_length = Column(
         Numeric(6, 3),

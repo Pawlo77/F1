@@ -16,7 +16,7 @@ DB_USERNAME=
 DB_PASSWORD=
 ```
 
-In poetry home run `poetry run deploy && poetry run prefect deploy --all`.
+In poetry home run `poetry run deploy && poetry run prefect deploy --all` after starting prefect server and making sure connection to database works.
 
 # Local run for prefect
 

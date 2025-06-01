@@ -4,25 +4,14 @@
 
 from __future__ import annotations
 
-import os
-import sys
-from typing import TYPE_CHECKING
-
 from sqlalchemy import DECIMAL, BigInteger, Boolean, Column, ForeignKey, Integer, String
 
-from .base import DWHMixin
+from .base import Base, DWHMixin
 from .dim_constructor import DimConstructor
 from .dim_driver import DimDriver
 from .dim_engine_manufacturer import DimEngineManufacturer
 from .dim_race import DimRace
 from .dim_tyre_manufacturer import DimTyreManufacturer
-
-# workaround for import issue in prefect
-if TYPE_CHECKING:
-    from ..flows_utils import Base
-else:
-    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-    from flows_utils import Base
 
 
 # pylint: disable=too-few-public-methods, duplicate-code
@@ -34,7 +23,7 @@ class FactRaceData(Base, DWHMixin):
         {
             "schema": "DWH",
             "comment": (
-                "Source tables: f1.race_data. From f1.race_data. Business key "
+                "Source tables: f1.race_data. Business key "
                 "is race_id + race_data_type + race_data_position_display_order."
             ),
         },
@@ -117,7 +106,7 @@ class FactRaceData(Base, DWHMixin):
         Integer,
         comment="Interval in milliseconds to previous driver. From f1.race_data. Can't be modified on source.",
     )
-    practice_laps = Column(
+    race_data_practice_laps = Column(
         Integer,
         comment="Number of laps completed in practice. From f1.race_data. Can't be modified on source.",
     )

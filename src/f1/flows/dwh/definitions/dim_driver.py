@@ -2,21 +2,10 @@
 
 from __future__ import annotations
 
-import os
-import sys
-from typing import TYPE_CHECKING
-
 from sqlalchemy import BigInteger, Column, Date, ForeignKey, String
 
-from .base import DWHMixin
+from .base import Base, DWHMixin
 from .dim_country import DimCountry
-
-# workaround for import issue in prefect
-if TYPE_CHECKING:
-    from ..flows_utils import Base
-else:
-    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-    from flows_utils import Base
 
 
 # pylint: disable=too-few-public-methods, duplicate-code
@@ -27,7 +16,7 @@ class DimDriver(Base, DWHMixin):
     __table_args__ = (
         {
             "schema": "DWH",
-            "comment": "Source tables: f1db.driver. Business key is driver_full_name.",
+            "comment": "Source tables: f1db.driver. Business key is driver_full_name and driver_date_of_birth.",
         },
     )
 
@@ -71,6 +60,7 @@ class DimDriver(Base, DWHMixin):
     driver_date_of_birth = Column(
         Date,
         nullable=False,
+        index=True,
         comment="Date of birth. From f1db.driver. Can't be modified on source.",
     )
     driver_date_of_death = Column(

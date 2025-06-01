@@ -2,20 +2,9 @@
 
 from __future__ import annotations
 
-import os
-import sys
-from typing import TYPE_CHECKING
-
 from sqlalchemy import Column, String
 
-from .base import DWHMixin
-
-# workaround for import issue in prefect
-if TYPE_CHECKING:
-    from ..flows_utils import Base
-else:
-    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-    from flows_utils import Base
+from .base import Base, DWHMixin
 
 
 # pylint: disable=too-few-public-methods, duplicate-code
