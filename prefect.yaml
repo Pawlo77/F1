@@ -50,6 +50,16 @@ deployments:
       name: default-work-pool
     schedule:
       cron: "0 3 * * 1"
-    tags: ["sql"]
+    tags: ["f1db"]
+    version: "1.0"
+    parameters: {}
+
+  - name: dwh
+    entrypoint: src/f1/flows/dwh/elt.py:elt
+    work_pool:
+      name: default-work-pool
+    schedule:
+      cron: "0 5 * * 1"
+    tags: ["dwh"]
     version: "1.0"
     parameters: {}
