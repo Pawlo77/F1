@@ -8,7 +8,7 @@ from .definitions.dim_engine_manufacturer import DimEngineManufacturer
 from .definitions.dim_race import DimRace
 from .definitions.dim_tyre_manufacturer import DimTyreManufacturer
 from .definitions.fact_entrant import FactEntrant
-from .definitions.fact_race_data import FactRaceData
+from .definitions.fact_race_data import FactRaceData  # type: ignore[attr-defined]
 
 __all__ = [
     "DimCircuit",

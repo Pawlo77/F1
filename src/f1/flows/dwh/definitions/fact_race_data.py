@@ -4,17 +4,32 @@
 
 from __future__ import annotations
 
+import os
+import sys
+from typing import TYPE_CHECKING
+
 from sqlalchemy import DECIMAL, BigInteger, Boolean, Column, ForeignKey, Integer, String
 
-from .base import Base, DWHMixin
+from .base import DWHMixin
 from .dim_constructor import DimConstructor
 from .dim_driver import DimDriver
 from .dim_engine_manufacturer import DimEngineManufacturer
 from .dim_race import DimRace
 from .dim_tyre_manufacturer import DimTyreManufacturer
 
+# workaround for import issue in prefect
+if TYPE_CHECKING:
+    from ...flows_utils import Base
+else:
+    sys.path.insert(
+        0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+    )
+    from flows_utils import Base
 
-# pylint: disable=too-few-public-methods, duplicate-code
+__all__ = ["FactRaceData"]
+
+
+# pylint: disable=too-few-public-methods,duplicate-code
 class FactRaceData(Base, DWHMixin):
     """Model for the fact race data table in the data warehouse."""
 

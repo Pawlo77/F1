@@ -36,7 +36,7 @@ clear && poetry run python -m src.f1.flows.racing_circuits.elt
 
 # Visualization
 
-Example visualization is available via Power BI, source code is [here](./src/f1/raports/raport.pbix).
+Example visualization is available via Power BI, source code is [here](./src/f1/reports/raport.pbix), with visualisation [here](./src/f1//reports/raport.pdf)
 
 # Documentation
 
