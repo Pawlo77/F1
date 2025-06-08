@@ -1,7 +1,7 @@
 # F1
 End-to-end project serving ETL and BI for F1-centered data,  part of IAD study program at Faculty of Mathematics and Information Science, Warsaw University of Technology
 
-# Deployment
+# Deployment of Data Warehouse
 
 With local .env file created containing
 ```bash
@@ -33,3 +33,11 @@ For example for entire elt process for Racing Circuits:
 ```
 clear && poetry run python -m src.f1.flows.racing_circuits.elt
 ```
+
+# Visualization
+
+Example visualization is available via Power BI, source code is [here](./src/f1/raports/raport.pbix).
+
+# Documentation
+
+Entire project documentation and scope is available via polish PDF [here](./docs/report.pdf)

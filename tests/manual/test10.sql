@@ -1,3 +1,8 @@
+-- Test 10: Latest Race Results Analysis
+-- Retrieves race results for the most recent completed race up to today's date
+-- Shows driver names, race times, points earned, and formatted race duration
+-- Orders results by finishing position to display race standings
+
 DECLARE @today DATE = CAST(GETDATE() AS DATE);
 
 DECLARE @last_race_id INT = (
@@ -7,17 +12,17 @@ DECLARE @last_race_id INT = (
     ORDER BY race_date DESC
 );
 
-SELECT 
+SELECT
     d.driver_full_name,
     frd.race_data_race_time_millis,
     frd.race_data_race_points,
     FORMAT(DATEADD(MILLISECOND, frd.race_data_race_time_millis, 0), 'HH:mm:ss') AS formatted_race_time
-FROM 
+FROM
     [F1DB].[DWH].[fact_race_data] frd
-JOIN 
+JOIN
     [F1DB].[DWH].[dim_driver] d ON frd.driver_id = d.dwh_id
-WHERE 
+WHERE
     frd.race_id = @last_race_id
     AND frd.race_data_type = 'RACE_RESULT'
-ORDER BY 
+ORDER BY
     frd.race_data_position_number ASC;
